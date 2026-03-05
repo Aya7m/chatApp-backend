@@ -12,6 +12,6 @@ app.use(express.json())
 app.use("/api/auth", authRouter)
 app.use("/api/messages", messagesRouter)
 
-connectDB()
+await connectDB()
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
