@@ -35,16 +35,17 @@ export const signUp = async (req, res) => {
     });
 
     if (NewUser) {
-      generateToken(NewUser._id, res);
-      await NewUser.save();
+      
+    const saveUser=  await NewUser.save();
+    generateToken(saveUser._id,res)
       return res
         .status(201)
         .json({
           message: "User created successfully",
-          _id: NewUser._id,
-          fullName: NewUser.fullName,
-          email: NewUser.email,
-          profilePicture: NewUser.profilePicture,
+          _id: saveUser._id,
+          fullName: saveUser.fullName,
+          email: saveUser.email,
+          profilePicture: saveUser.profilePicture,
         });
         //Todo: send welcome email to user
     } else {
@@ -77,7 +78,7 @@ export const signIn=async(req,res)=>{
             email:user.email,
             profilePicture:user.profilePicture,
         })
-        
+
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
