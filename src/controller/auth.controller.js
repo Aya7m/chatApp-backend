@@ -2,7 +2,6 @@ import { sendWelcomeEmail } from "../emails/EmailHandler.js";
 import { generateToken } from "../lib/generateToken.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
- 
 
 export const signUp = async (req, res) => {
   try {
@@ -61,3 +60,42 @@ export const signUp = async (req, res) => {
 };
 
 // login
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    generateToken(user._id, res);
+    return res.status(200).json({
+      message: "Login successful",
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePicture: user.profilePicture,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// logout
+export const logout = (_, res) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  return res.status(200).json({ message: "Logout successful" });
+};
