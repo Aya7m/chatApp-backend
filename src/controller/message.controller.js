@@ -41,6 +41,20 @@ export const sendMessage = async (req, res) => {
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
+    if (!text && !image) {
+      return res.status(400).json({ message: "text or image is required" });
+    }
+    if (senderId.equals(receiverId)) {
+      return res
+        .status(400)
+        .json({ message: "you can't send message to yourself" });
+    }
+
+    const receiver = await User.exists({ _id: receiverId });
+    if (!receiver) {
+      return res.status(404).json({ message: "receiver not found" });
+    }
+
     let imgUrl;
     const uploadResponse = await cloudinary.uploader.upload(image);
     imgUrl = uploadResponse.secure_url;
@@ -82,7 +96,7 @@ export const getChatPartners = async (req, res) => {
         ),
       ),
     ];
-    
+
     // هات كل المستخدمين اللي _id بتاعهم موجود جوه chatPartnersIds
 
     const chatPartners = await User.find({
