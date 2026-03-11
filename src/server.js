@@ -34,5 +34,5 @@ app.use("/api/messages", messagesRouter);
 await connectDB();
 app.get("/", (req, res) => res.send("Hello World!"));
 // لازم كمان Express يرد على preflight requests
-app.options("*", cors({ origin: allowedOrigins, credentials: true }));
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
