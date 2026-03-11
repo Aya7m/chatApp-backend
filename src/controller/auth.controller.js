@@ -1,4 +1,5 @@
 import { sendWelcomeEmail } from "../emails/EmailHandler.js";
+import cloudinary from "../lib/cloudinary.js";
 import { generateToken } from "../lib/generateToken.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
@@ -98,4 +99,30 @@ export const logout = (_, res) => {
     sameSite: "strict",
   });
   return res.status(200).json({ message: "Logout successful" });
+};
+
+// update-profile
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePicture } = req.body;
+    if (!profilePicture) {
+      return res.status(400).json({ message: "Profile picture is required" });
+    }
+
+    const userId = req.user._id;
+    const uploadResponse = await cloudinary.uploader.upload(profilePicture);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePicture: uploadResponse.secure_url },
+      { new: true },
+    );
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      profilePicture: updatedUser.profilePicture,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
 };
