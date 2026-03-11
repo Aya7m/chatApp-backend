@@ -25,11 +25,18 @@ app.use(
   })
 );
 
-// لاز
+// Express لازم يرد على كل preflight requests
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/messages", messagesRouter);
+
 
 await connectDB();
 app.get("/", (req, res) => res.send("Hello World!"));
