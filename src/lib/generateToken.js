@@ -7,9 +7,9 @@ export const generateToken = (userId, res) => {
 
   res.cookie("jwt", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "development" ? false : true,
-    sameSite: "none", // مهم جداً للفرونت على دومين مختلف
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === "production", // true على الإنترنت
+    sameSite: "none", // مهم للكوكيز cross-site
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 يوم
   });
 
   return token;
