@@ -35,7 +35,7 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
     });
 
-    generateToken(NewUser._id, res);
+   const token= generateToken(NewUser._id, res);
 
     try {
       await sendWelcomeEmail(
@@ -52,6 +52,7 @@ export const signUp = async (req, res) => {
       _id: NewUser._id,
       fullName: NewUser.fullName,
       email: NewUser.email,
+      token
     });
   } catch (error) {
     return res
@@ -76,13 +77,14 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    generateToken(user._id, res);
+  const token=  generateToken(user._id, res);
     return res.status(200).json({
       message: "Login successful",
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
       profilePicture: user.profilePicture,
+      token
     });
   } catch (error) {
     return res
@@ -92,15 +94,14 @@ export const login = async (req, res) => {
 };
 
 // logout
-export const logout = (_, res) => {
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-  });
-  return res.status(200).json({ message: "Logout successful" });
-};
+export const logout = (req, res) => {
+  let token = req.headers.authorization;
+  if (token && token.startsWith("Bearer ")) {
+    token = token.split(" ")[1];
+  }
 
+  res.json({ message: "Logout successful" , token: null});
+}
 // update-profile
 export const updateProfile = async (req, res) => {
   try {
